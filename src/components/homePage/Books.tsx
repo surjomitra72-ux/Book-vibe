@@ -2,16 +2,23 @@ import React from "react";
 import BookCard from "@/components/shared/BookCard";
 import { IBook } from "@/types/books.type";
 
-const getBooks = async () => {
-  const res = await fetch("http://localhost:3000/booksData.json");
+const getBooks = async (): Promise<IBook[]> => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/booksData.json`
+    );
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch books");
+    if (!res.ok) {
+      throw new Error("Failed to fetch books");
+    }
+
+    const data: IBook[] = await res.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching books data:", error);
+    return [];
   }
-
-  const data = await res.json();
-
-  return data;
 };
 
 const Books = async () => {
@@ -19,7 +26,6 @@ const Books = async () => {
 
   return (
     <section className="container mx-auto my-[70px] px-4">
-
       {/* Section Header */}
       <div className="mb-10 text-center">
         <p className="mb-2 font-semibold uppercase tracking-widest text-green-600">
@@ -38,14 +44,10 @@ const Books = async () => {
 
       {/* Books Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {booksData.slice(0,9).map((book: IBook, ind:number) => (
-          <BookCard
-            key={book.bookId}
-            book={book}
-          />
+        {booksData.slice(0, 9).map((book: IBook) => (
+          <BookCard key={book.bookId} book={book} />
         ))}
       </div>
-
     </section>
   );
 };
